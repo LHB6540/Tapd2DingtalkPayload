@@ -4,7 +4,7 @@ from .story_status_change import StoryStatusChange
 from .story_comment import StoryComment
 from .story_attachment import StoryAttachment
 from .story_update import StoryUpdate
-from function.logs_record import log2file
+# from function.logs_record import log2file
 
 
 def metadata2payload(metadata, style=None, status_dict=None):
@@ -27,7 +27,7 @@ def metadata2payload(metadata, style=None, status_dict=None):
         story = StoryUpdate(metadata)
 
     if not story:
-        log2file("tapd2payload.log", "消息转换失败：初始化阶段" + str(metadata), "ERROR")
+        # log2file("tapd2payload.log", "消息转换失败：初始化阶段" + str(metadata), "ERROR")
         return None
 
     if not style:
@@ -36,7 +36,7 @@ def metadata2payload(metadata, style=None, status_dict=None):
     payload = story.get_message_body(style)
 
     if not payload:
-        log2file("tapd2payload.log", "消息转换失败：生成消息阶段" + str(metadata), "ERROR")
+        # log2file("tapd2payload.log", "消息转换失败：生成消息阶段" + str(metadata), "ERROR")
         return payload
 
     return payload
