@@ -18,8 +18,14 @@ class StoryCreate(Story):
         self.message_body["receiver"] = get_receiver(self.metadata)
         self.message_url = general_url(self.workspace_id, self.story_id)
         self.creator_name = ""
-        for name in self.creator:
-            self.creator_name = self.creator_name + name + ","
+        if isinstance(self.creator, str):
+            tmp = self.creator.split(";")
+            for name in tmp:
+                self.creator_name = self.creator_name + name + ","
+        elif isinstance(self.creator, list):
+            for name in self.creator:
+                self.creator_name = self.creator_name + name + ","
+
         if self.creator_name:
             self.creator_name = self.creator_name[:-1]
         self.message_content = self.creator_name + "创建了需求【" + self.name + "】"
