@@ -1,7 +1,7 @@
 import datetime
+import re
 import uuid
 from bs4 import BeautifulSoup
-
 
 MESSAGE = {
     "receiver": ["消息目标接受人"],
@@ -18,11 +18,36 @@ def get_receiver(metadata):
     receiver = []
     for item in RECEIVER_KYE:
         if item in metadata["event"]:
-            receiver = receiver + metadata["event"][item]
+            if isinstance(metadata["event"][item], list):
+                receiver = receiver + metadata["event"][item]
+            elif isinstance(metadata["event"][item], str):
+                if ";" in metadata["event"][item]:
+                    if metadata["event"][item][-1] == ";":
+                        metadata["event"][item] = metadata["event"][item][:-1]
+                    tmp = metadata["event"][item].split(";")
+                    receiver = receiver + tmp
+                else:
+                    receiver.append(metadata["event"][item])
+
+    new_list = [i for i in receiver if i != ""]
+    receiver = new_list
     receiver = list(set(receiver))
+
     if metadata["event"]["event_key"] == "story::create":
-        for creator in metadata["event"]["creator"]:
-            receiver.remove(creator)
+        if isinstance(metadata["event"]["creator"], str):
+            if ";" in metadata["event"]["creator"]:
+                tmp = metadata["event"]["creator"].split(";")
+                for creator in tmp:
+                    if creator in receiver():
+                        receiver.remove(creator)
+            else:
+                receiver.remove(metadata["event"]["creator"])
+
+        elif isinstance(metadata["event"]["creator"], list):
+            for creator in metadata["event"]["creator"]:
+                if creator in receiver():
+                    receiver.remove(creator)
+
     elif metadata["event"]["user"] in receiver:
         receiver.remove(metadata["event"]["user"])
     return receiver
@@ -36,7 +61,7 @@ def get_recursion_receiver(self, workspace_id, story_id):
 
 def general_url(workspace, story):
     return "dingtalk://dingtalkclient/page/link?url=https%3A%2F%2Fwww.tapd.cn%2F" + str(workspace) + \
-           "%2Fprong%2Fstories%2Fview%2F" + str(story) +"&pc_slide=false&rp=" + str(uuid.uuid4())[:4]
+           "%2Fprong%2Fstories%2Fview%2F" + str(story) + "&pc_slide=false&rp=" + str(uuid.uuid4())[:4]
 
 
 def to_text(message_body, type_title, content, url):
@@ -105,8 +130,10 @@ def get_at_user(comment):
         tar_list = soup.find_all('b')
         for tar in tar_list:
             if tar.get('data-userid'):
-                user_list.append(tar.string[1:])
+                tmp_name = tar.get('data-userid')
+                tmp_name = re.sub(r'\(.*\)', '', tmp_name)
+                user_list.append(tmp_name)
+
     else:
         pass
     return user_list
-
