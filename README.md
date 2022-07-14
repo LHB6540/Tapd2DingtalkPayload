@@ -36,7 +36,7 @@
 
 
 ## 接入demo
-暂时未提交pypi，请clone至项目中 
+暂时未提交pypi，请下载最新tag至项目中 
 ```python
 from Tapd2DingtalkPayload import metadata2payload
 payload = metadata2payload(tapd_data, style=None, status_dict=None)
